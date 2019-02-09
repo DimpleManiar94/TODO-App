@@ -1,5 +1,6 @@
 var express = require('express');
 var todoController = require('./Controllers/todoController.js');
+var authenticateController = require('./Controllers/authenticateController');
 
 var app = express();
 
@@ -10,6 +11,7 @@ app.use(express.static('public'));
 //fire controllers
 
 todoController(app);
+authenticateController(app);
 
 
 app.listen(3000);

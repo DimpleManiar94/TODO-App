@@ -16,7 +16,7 @@
             </form>
             <ul>
                 <% for(var i = 0; i < todos.length; i++) { %>
-                <li><%= todos[i].item %></li>
+                <li id=<%=todos[i]._id%>><%= todos[i].item %></li>
                 <% } %>
 
             </ul>
