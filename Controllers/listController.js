@@ -62,7 +62,7 @@ app.get('/list/search/name', function(req, res) {
 app.get('/list/search/tag', function(req, res) {
 
     //find all lists of user with id=userid that has a tag=tag
-    Lists.find({userid: req.query.userid, tags: {tag: req.params.tag}}, function(err, data) {
+    Lists.find({userid: req.query.userid, tags: {tag: req.query.tag}}, function(err, data) {
         if(err) {
             res.json({
                 message: err.message
@@ -93,7 +93,7 @@ app.put('/list/:id', urlencodedParser, function(req, res) {
 app.put('/list/addTag/:listid', urlencodedParser, function(req, res) {
 
     // find the list and push request body object in tags array
-    Lists.find({_id: req.params.listid}).tags.push(req.body).save(function(err, data) {
+    Lists.update({_id: req.params.listid}, {$push: {'tags': req.body}}, function(err, data) {
         if(err) {
             res.json({
                 message: err.message
@@ -122,15 +122,16 @@ app.put('/list/editTag', urlencodedParser, function(req, res) {
 
 // endpoint to delete existing tag in a list
 //request url should look something like: /list/removeTag?listid=listid&tagid=tagid
-app.put('/list/removeTag', function(req, res) {
+app.put('/list/removeTag', urlencodedParser, function(req, res) {
     //delete the requested tag from mongoDB
-    Lists.find({_id: req.query.listid}).pull(tags: {_id: req.query.tagid}).save(function(err, data) {
+    Lists.find({_id: req.query.listid}, function(err, result) {
         if(err) {
             res.json({
                 message: err.message
             });
         }
-        res.json(data);
+        result.tags.id(req.query.tagid).remove();
+        result.save();
     });
 });
 
