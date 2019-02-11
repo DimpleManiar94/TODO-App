@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 var todoSchema = new mongoose.Schema({
-    userid: {
+    listid: {
         type: String,
         required: true
     },

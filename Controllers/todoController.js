@@ -2,55 +2,70 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var Todo = require('./../models/todolistModel.js');
 
-mongoose.connect('mongodb://dmaniar:flowerpot123@ds135233.mlab.com:35233/nodetodoappv1', { useNewUrlParser: true });
+// connect to database
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true });
 
-//Create a schema
-
-/*var todoSchema = new mongoose.Schema({
-    item: String
-});
-
-var Todo = mongoose.model('Todo', todoSchema);*/
-
-//var data = [{item: 'get milk'}, {item: 'walk dog'}, {item: 'kick some coding ass'}];
+// Parse request body json. This means the request body should have json object
 var urlencodedParser = bodyParser.json();
 
 module.exports = function(app) {
 
-app.get('/todo/:id', function(req, res) {
-    //get data from mongoDB and pass it to the view
-    Todo.find({userid: req.params.id}, function(err, data) {
-        if(err) throw err;
-        //res.json(data);
-        res.render('todo', {todos: data});
+    // endpoint to get all to do items associated with a list
+    app.get('/todo/:id', function(req, res) {
+
+        //find all to do items of a list
+        Todo.find({listid: req.params.id}, function(err, data) {
+            if(err) {
+                res.json({
+                    message: err.message
+                });
+            }
+            res.json(data);
+            //res.render('todo', {todos: data});
+        });
+
     });
 
-});
+    // endpoint to add a new item to a todo list
+    app.post('/todo', urlencodedParser, function(req, res) {
 
-app.post('/todo', urlencodedParser, function(req, res) {
-    console.log(req.body);
-    //get data from the view and add it to mongoDB
-    var newTodo = Todo(req.body).save(function(err, data){
-        if(err) throw err;
-        res.json(data);
+        //add new item to database
+        var newTodo = Todo(req.body).save(function(err, data){
+            if(err) {
+                res.json({
+                    message: err.message
+                });
+            }
+            res.json(data);
+        });
     });
-});
 
-app.put('/todo/:id', urlencodedParser, function(req, res) {
-    console.log(req.body);
-   var update = Todo.update({_id: req.params.id}, req.body, function(err, data) {
-        if(err) throw err;
-        res.json(data);
-   });
-});
+    // endpoint to edit a to do item
+    app.put('/todo/:id', urlencodedParser, function(req, res) {
 
-app.delete('/todo/:id', function(req, res) {
-console.log(req.params.id)
-    //delete the requested item from mongoDB
-    Todo.deleteOne({_id : req.params.id}, function(err, data){
-        if(err) throw err;
-        res.json(data);
+       // update to do item in database
+       Todo.update({_id: req.params.id}, req.body, function(err, data) {
+            if(err) {
+                res.json({
+                    message: err.message
+                });
+            }
+            res.json(data);
+       });
     });
-});
+
+    // endpoint to delete a to do item
+    app.delete('/todo/:id', function(req, res) {
+
+        //delete the requested item from mongoDB
+        Todo.deleteOne({_id : req.params.id}, function(err, data){
+            if(err) {
+                res.json({
+                    message: err.message
+                });
+            }
+            res.json(data);
+        });
+    });
 
 }
